@@ -1,0 +1,116 @@
+2.CREATE TABLE sushma_neduganti(
+    change_id INT IDENTITY PRIMARY KEY,
+    customer_id INT NOT NULL,
+    first_name VARCHAR(255) NOT NULL,
+    last_name VARCHAR(255) NOT NULL,
+   
+    phone INT NOT NULL,
+    
+    updated_at DATETIME NOT NULL,
+    operation CHAR(3) NOT NULL,
+    CHECK(operation = 'INS' or operation='DEL')
+);
+
+select * from sales.customers
+select * from production.products
+
+CREATE TRIGGER sales.customer_sale
+ON sales.customers
+AFTER INSERT, DELETE
+AS
+BEGIN
+    SET NOCOUNT ON;
+    INSERT INTO sushma_neduganti(
+        customer_id, 
+        first_name,
+		last_name,
+        
+        phone,
+        
+        updated_at, 
+        operation
+    )
+    SELECT
+        i.customer_id,
+        first_name,
+        last_name,
+        phone,
+        
+        GETDATE(),
+        'INS'
+    FROM
+        inserted i
+    UNION ALL
+    SELECT
+        d.customer_id,
+        first_name,
+		last_name,
+       
+        phone,
+        
+        GETDATE(),
+        'DEL'
+    FROM
+        deleted d;
+END
+
+
+DELETE FROM 
+    sales.customers
+WHERE 
+    customer_id = 1;
+========================================================================================================================================================================
+
+1.CREATE FUNCTION yearrange (
+    @year varchar(30)
+)
+RETURNS TABLE
+AS
+RETURN
+    SELECT 
+        order_id,
+        
+		order_date,
+		order_status,
+		customer_id,
+		staff_id
+		store_id
+
+
+
+    FROM
+        sales.orders
+    WHERE
+        order_date = @year;
+select * 
+from yearrange(2016)
+
+ ALTER FUNCTION yearrange (
+    @start_date varchar(30),
+    @end_date varchar(30)
+)
+RETURNS TABLE
+AS
+RETURN
+    SELECT 
+			order_id,
+        
+		order_date,
+		order_status,
+		customer_id,
+		staff_id,
+		store_id
+       
+    FROM
+        sales.orders
+    WHERE
+        order_date BETWEEN @start_date AND @end_date
+
+
+
+SELECT * 
+from yearrange(2016,2018)
+
+select *
+from sales.orders
+=========================================================================================================================================================
